@@ -1,3 +1,4 @@
+import { PauseIcon, PlayIcon, RepeatIcon, ShuffleIcon, SkipBackIcon, SkipForwardIcon, VolumeIcon } from "lucide-react";
 import { useRef } from "react";
 
 export function MusicPlayer({
@@ -62,7 +63,7 @@ export function MusicPlayer({
         </button>
 
         <button className="p-2 hover:bg-white/10 rounded-lg transition">
-          <SkipIcon flip />
+          <SkipForwardIcon flip />
         </button>
 
         <button
@@ -73,7 +74,7 @@ export function MusicPlayer({
         </button>
 
         <button className="p-2 hover:bg-white/10 rounded-lg transition">
-          <SkipIcon />
+          <SkipBackIcon />
         </button>
 
         <button className="p-2 hover:bg-white/10 rounded-lg transition">

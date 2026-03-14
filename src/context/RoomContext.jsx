@@ -8,6 +8,7 @@ export const RoomContext = createContext();
 
 const initialRoomState = {
   room: null,
+  cuurentUser : null , 
   participants: [],
   loading: false,
   error: null
@@ -36,7 +37,8 @@ export const RoomProvider = ({ children }) => {
       type: "JOIN_ROOM_SUCCESS",
       payload: {
         room: joinRes.room,
-        participants: joinRes.participants
+        participants: joinRes.participants,
+        cuurentUser : joinRes.user_id
       }
     });
 
@@ -70,7 +72,8 @@ export const RoomProvider = ({ children }) => {
         type: "JOIN_ROOM_SUCCESS",
         payload: {
           room : res.room,
-          participants : res.participants
+          participants : res.participants,
+          cuurentUser : res.user_id
         }
       });
 
@@ -90,25 +93,32 @@ export const RoomProvider = ({ children }) => {
   
 
 
-  // LEAVE ROOM
+  
   const leaveRoom = async (room_id) => {
 
-    try {
+  try {
 
-      await leaveRoomApi(room_id);
+    const res = await leaveRoomApi(room_id);
 
-      dispatch({ type: "LEAVE_ROOM" });
+    
+    websocket.disconnect();
 
-    } catch (error) {
+   
+    localStorage.removeItem("room_code");
 
-      dispatch({
-        type: "ROOM_ERROR",
-        payload: error.message
-      });
+    dispatch({ type: "LEAVE_ROOM" });
 
-    }
-  };
+    return res
 
+  } catch (error) {
+
+    dispatch({
+      type: "ROOM_ERROR",
+      payload: error.message
+    });
+
+  }
+};
 
   return (
     <RoomContext.Provider

@@ -21,9 +21,6 @@ export const AuthPage = () => {
   const handleLogin = async (data) => {
     try {
       const res = await login(data);
-
-      console.log(res.data);
-
       navigate("/join-room")
 
 

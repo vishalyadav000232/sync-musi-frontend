@@ -1,6 +1,7 @@
+import { LogOut } from "lucide-react";
 import React from "react";
 
-export default function UsernameBadge({ username }) {
+export default function UsernameBadge({ username  , onlogout}) {
 
   const initial = username?.charAt(0).toUpperCase();
 
@@ -16,8 +17,12 @@ export default function UsernameBadge({ username }) {
         {initial}
       </div>
 
-      {/* Username */}
+      
       <span className="font-semibold">{username}</span>
+
+      <LogOut 
+      onClick={onlogout}
+      className="flex justify-self-end ml-auto mr-1.5 text-red-600" />
 
     
     </div>

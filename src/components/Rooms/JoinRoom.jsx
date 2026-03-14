@@ -10,8 +10,8 @@ export const JoinRoom = () => {
     const [roomCode, setRoomCode] = useState("");
     const [loading, setLoading] = useState(false);
     const { joinRoom } = useRoom()
-    const { user } = useAuth();
-   const navigate = useNavigate()
+    const { user, logout } = useAuth();
+    const navigate = useNavigate()
 
     const handleJoin = async () => {
 
@@ -25,7 +25,7 @@ export const JoinRoom = () => {
             console.log("Joining room:", code);
 
             const res = await joinRoom(code)
-            if (res){
+            if (res) {
                 navigate("/sync-music")
             }
 
@@ -36,6 +36,12 @@ export const JoinRoom = () => {
             setLoading(false);
         }
     };
+
+
+    const handleLogout = () => {
+        logout()
+        navigate("/")
+    }
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -48,7 +54,10 @@ export const JoinRoom = () => {
 
             {/* Header */}
             <div className="flex justify-end">
-                <UsernameBadge username={user?.full_name || "user"} role="Host" />
+                <UsernameBadge
+                    username={user?.full_name || "user"} role="Host"
+                    onlogout={handleLogout}
+                />
             </div>
 
             {/* Main Card */}

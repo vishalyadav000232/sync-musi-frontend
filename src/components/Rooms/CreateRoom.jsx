@@ -26,7 +26,10 @@ const navigate = useNavigate()
       console.error(err.message);
     }
   };
-
+ const handleLogout = ()=>{
+logout()
+navigate("/")
+    }
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleCreate();
@@ -38,7 +41,9 @@ const navigate = useNavigate()
 
       
       <div className="flex justify-end">
-        <UsernameBadge username={user?.full_name || "user"} role="Host" />
+        <UsernameBadge 
+        onlogout={handleLogout}
+        username={user?.full_name || "user"} role="Host" />
       </div>
 
       
