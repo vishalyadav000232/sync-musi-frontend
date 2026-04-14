@@ -1,5 +1,5 @@
 import { Send } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import websocket from "../../services/websocket";
 import { useAuth } from "../../context/AuthContext";
 
@@ -7,12 +7,15 @@ export const Chats = () => {
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+
   const { user } = useAuth();
 
+  const bottomRef = useRef(null);
 
   useEffect(() => {
 
     const handleIncomingMessage = (data) => {
+      console.log(data)
       setMessages(prev => [...prev, data]);
     };
 
@@ -23,6 +26,11 @@ export const Chats = () => {
     };
 
   }, []);
+
+ 
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = () => {
 
@@ -37,13 +45,12 @@ export const Chats = () => {
 
     websocket.send(newMessage);
 
-    setMessages(prev => [...prev, newMessage]);
-
     setMessage("");
 
   };
 
   return (
+
     <div className="bg-white/5 border border-white/10 rounded-2xl p-4 w-full max-w-md">
 
       <h3 className="text-amber-50 font-bold text-xl mb-4 border-b border-slate-400/10 p-2">
@@ -54,14 +61,43 @@ export const Chats = () => {
 
         <div className="flex flex-col flex-1 gap-2 overflow-y-auto mb-3">
 
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className="bg-purple-500/20 text-white px-3 py-2 rounded-lg w-fit"
-            >
-              <strong>{msg.user}:</strong> {msg.text}
-            </div>
-          ))}
+          {messages.map((msg) => {
+          
+
+            const isCurrentUser = msg.user === user?.username;
+
+            return (
+
+              <div
+                key={msg.id}
+                className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
+              >
+
+                <div
+                  className={`px-3 py-2 rounded-lg max-w-[70%] text-white
+                    ${isCurrentUser
+                      ? "bg-purple-600/15"
+                      : "bg-gray-700"
+                    }`}
+                >
+
+                  {!isCurrentUser && (
+                    <div className="text-xs text-gray-300 mb-1">
+                      {msg.user}
+                    </div>
+                  )}
+
+                  <div>{msg.text}</div>
+
+                </div>
+
+              </div>
+
+            );
+
+          })}
+
+          <div ref={bottomRef} />
 
         </div>
 
@@ -71,8 +107,11 @@ export const Chats = () => {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSend();
+            }}
             placeholder="Type something..."
-            className="bg-white/10 w-full p-3 rounded-2xl outline-none"
+            className="bg-white/10 w-full p-3 rounded-2xl outline-none text-white"
           />
 
           <button
@@ -87,5 +126,7 @@ export const Chats = () => {
       </div>
 
     </div>
+
   );
+
 };

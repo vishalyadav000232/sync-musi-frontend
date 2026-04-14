@@ -1,7 +1,6 @@
 // src/components/Auth/LoginForm.jsx
 import { Music4 } from 'lucide-react';
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
 import MusicIcon from './ui/MusicIcon';
 
 export default function LoginForm({ onLogin }) {

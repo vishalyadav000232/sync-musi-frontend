@@ -1,3 +1,4 @@
+import { ClockFading } from "lucide-react";
 import BaseApi from "./base";
 
 export const createRoom = async (payload) => {
@@ -37,8 +38,7 @@ export const joinRoom = async (roomCode) => {
         room_code: roomCode
       }
     });
-
-    console.log("Joined room:", response.data);
+ 
 
     return response.data;
 

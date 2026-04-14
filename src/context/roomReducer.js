@@ -22,7 +22,7 @@ export const roomReducer = (state, action) => {
         loading: false,
         room: action.payload.room,
         participants: action.payload.participants,
-        cuurentUser : action.payload.user_id
+        currentUser: action.payload.user_id
       };
 
     case "SET_PARTICIPANTS":

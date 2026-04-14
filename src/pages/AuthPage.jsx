@@ -12,23 +12,21 @@ import { useAuth } from '../context/AuthContext';
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate()
-  const {loading , login  , signup} = useAuth()
+  const { login, signup } = useAuth()
 
-  useEffect(()=>{
-    navigate(isLogin?"/login":"/signup")
-  },[isLogin])
+  useEffect(() => {
+    navigate(isLogin ? "/login" : "/signup")
+  }, [isLogin, navigate])
 
   const handleLogin = async (data) => {
     try {
-      const res = await login(data);
+      await login(data);
       navigate("/join-room")
-
-
-
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
     }
   };
+
   const handleSignup = async (data) => {
     try {
       const res = await signup(data);
@@ -87,3 +85,15 @@ export const AuthPage = () => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+

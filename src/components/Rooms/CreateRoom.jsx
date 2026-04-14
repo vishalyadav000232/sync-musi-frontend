@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export const CreateRoom = () => {
 
-  const { loading, user } = useAuth();
+  const { loading, user, logout } = useAuth();
   const { createRoom } = useRoom();
 
   const [roomName, setRoomName] = useState("");

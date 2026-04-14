@@ -1,4 +1,3 @@
-import { useAuth } from "../../context/AuthContext";
 import { useRoom } from "../../context/RoomContext";
 import { randomHexColor } from "../../utils/randomColor";
 
