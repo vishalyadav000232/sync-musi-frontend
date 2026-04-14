@@ -22,6 +22,7 @@ export function MusicPlayer({
   setMuted,
   onNext,
   onPrev,
+  isHost = true,
 }) {
   const audioRef = useRef(null);
   const syncLock = useRef(false);
@@ -61,7 +62,9 @@ export function MusicPlayer({
     if (!audio) return;
 
     const handleLoaded = () => {
-      setDuration(audio.duration || 0);
+      let dur = audio.duration || 0;
+      if (dur === 0 || isNaN(dur)) dur = 30; // Fallback for demo
+      setDuration(dur);
     };
 
     audio.addEventListener("loadedmetadata", handleLoaded);
@@ -122,7 +125,7 @@ export function MusicPlayer({
 
     setTimeout(() => {
       syncLock.current = false;
-    }, 400);
+    }, 200);
   }, [song, onProgress]);
 
   // =========================
@@ -146,7 +149,7 @@ export function MusicPlayer({
 
     setTimeout(() => {
       syncLock.current = false;
-    }, 250);
+    }, 100);
   };
 
   // =========================
@@ -178,8 +181,9 @@ export function MusicPlayer({
         ref={audioRef}
         src={song?.url}
         key={song?.url}
-        loop="false"
-        onEnded={onNext}
+        preload="metadata"
+        loop={false}
+        onEnded={isHost ? onNext : undefined}
         onError={(e) => console.error("Audio load error:", e)}
       />
 
@@ -196,24 +200,25 @@ export function MusicPlayer({
 
       {/* CONTROLS */}
       <div className="flex items-center gap-4">
-        <button><ShuffleIcon /></button>
+        <button disabled={!isHost}><ShuffleIcon /></button>
 
-        <button onClick={onPrev}>
+        <button onClick={onPrev} disabled={!isHost}>
           <SkipBackIcon />
         </button>
 
         <button
           onClick={() => onTogglePlay(!isPlaying)}
           className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center"
+          disabled={!isHost}
         >
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
         </button>
 
-        <button onClick={onNext}>
+        <button onClick={onNext} disabled={!isHost}>
           <SkipForwardIcon />
         </button>
 
-        <button><RepeatIcon /></button>
+        <button disabled={!isHost}><RepeatIcon /></button>
       </div>
 
       {/* PROGRESS */}
@@ -221,8 +226,8 @@ export function MusicPlayer({
         <span>{elapsed}</span>
 
         <div
-          onClick={handleSeek}
-          className="flex-1 h-2 bg-white/10 rounded-full cursor-pointer"
+          onClick={isHost ? handleSeek : undefined}
+          className={`flex-1 h-2 bg-white/10 rounded-full ${isHost ? 'cursor-pointer' : 'cursor-not-allowed'}`}
         >
           <div className="h-full bg-purple-500" style={{ width: `${pct}%` }} />
         </div>

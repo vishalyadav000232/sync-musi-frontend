@@ -72,18 +72,50 @@ export const SyncMusicDashboard = () => {
 
   // ---------------- WEBSOCKET EVENTS ----------------
   useEffect(() => {
-    const unsubPlay = websocket.subscribe("PLAY", (payload) => {
-      const event = payload?.event || payload;
+    const parseServerTime = (value) => {
+      if (!value) return Date.now();
+      const num = Number(value);
+      if (Number.isNaN(num)) return Date.now();
+      return num < 1e12 ? num * 1000 : num;
+    };
 
-      
-      const state = event?.state;
+    const normalizeEvent = (payload) => payload?.event || payload;
+    const normalizeState = (event) => event?.state ?? event;
+
+    const unsubSync = websocket.subscribe("SYNC", (payload) => {
+      const event = normalizeEvent(payload);
+      const state = normalizeState(event);
+      if (!state) return;
+
+      const now = Date.now();
+      const serverNow = parseServerTime(event.server_time ?? state.last_updated);
+      const drift = now - serverNow;
+
+      const correctedPosition =
+        state.position + (state.is_playing ? drift / 1000 : 0);
+
+      setSong(state.song || DEMO_PLAYLIST[0]);
+      setCurrentIndex(state.index ?? 0);
+      setIsPlaying(state.is_playing);
+      setProgress(correctedPosition);
+
+      lastSyncRef.current = Date.now();
+    });
+
+    const unsubError = websocket.subscribe("ERROR", (payload) => {
+      const event = normalizeEvent(payload);
+      alert(event.message || "Action not allowed");
+    });
+
+    const unsubPlay = websocket.subscribe("PLAY", (payload) => {
+      const event = normalizeEvent(payload);
+      const state = normalizeState(event);
       if (!state) return;
 
       if (event.source === user?.id) return;
 
       const now = Date.now();
-      const serverNow = state.last_updated;
-
+      const serverNow = parseServerTime(event.server_time ?? state.last_updated);
       const drift = now - serverNow;
 
       const correctedPosition =
@@ -140,6 +172,8 @@ export const SyncMusicDashboard = () => {
     });
 
     return () => {
+      unsubSync();
+      unsubError();
       unsubPlay();
       unsubPause();
       unsubSeek();
@@ -180,7 +214,7 @@ export const SyncMusicDashboard = () => {
         index: currentIndex,
         source: user?.id,
       });
-    }, 250);
+    }, 100);
   };
 
   const handleLocalProgress = (pos) => {
@@ -270,6 +304,7 @@ export const SyncMusicDashboard = () => {
           setMuted={setMuted}
           onNext={handleNext}
           onPrev={handlePrev}
+          isHost={user?.id === room?.host_id}
         />
 
         <Chats />
