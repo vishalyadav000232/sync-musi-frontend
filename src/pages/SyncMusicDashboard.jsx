@@ -166,7 +166,7 @@ export const SyncMusicDashboard = () => {
       const prevSong = playlist[event.index] || playlist[0];
 
       setCurrentIndex(event.index);
-      setSong(prevSong);
+      setSong(prevSong);git 
       setProgress(0);
       setIsPlaying(true);
     });
