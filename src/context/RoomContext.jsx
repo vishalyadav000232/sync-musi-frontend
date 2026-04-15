@@ -9,6 +9,7 @@ import {
 import websocket from "../services/websocket";
 import { getToken } from "../utils/token_helper";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const RoomContext = createContext();
 
 const initialRoomState = {
@@ -135,4 +136,5 @@ export const RoomProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useRoom = () => useContext(RoomContext);

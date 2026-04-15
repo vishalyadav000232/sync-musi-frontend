@@ -148,27 +148,47 @@ export const SyncMusicDashboard = () => {
     });
 
     const unsubNext = websocket.subscribe("NEXT", (payload) => {
-      const event = payload?.event || payload;
+      const event = normalizeEvent(payload);
+      const state = normalizeState(event);
+      if (!state) return;
+
       if (event.source === user?.id) return;
 
-      const nextSong = playlist[event.index] || playlist[0];
+      const now = Date.now();
+      const serverNow = parseServerTime(event.server_time ?? state.last_updated);
+      const drift = now - serverNow;
 
-      setCurrentIndex(event.index);
-      setSong(nextSong);
-      setProgress(0);
-      setIsPlaying(true);
+      const correctedPosition =
+        state.position + (state.is_playing ? drift / 1000 : 0);
+
+      setSong(state.song || playlist[state.index] || playlist[0]);
+      setCurrentIndex(state.index ?? 0);
+      setIsPlaying(state.is_playing ?? true);
+      setProgress(correctedPosition);
+
+      lastSyncRef.current = Date.now();
     });
 
     const unsubPrev = websocket.subscribe("PREV", (payload) => {
-      const event = payload?.event || payload;
+      const event = normalizeEvent(payload);
+      const state = normalizeState(event);
+      if (!state) return;
+
       if (event.source === user?.id) return;
 
-      const prevSong = playlist[event.index] || playlist[0];
+      const now = Date.now();
+      const serverNow = parseServerTime(event.server_time ?? state.last_updated);
+      const drift = now - serverNow;
 
-      setCurrentIndex(event.index);
-      setSong(prevSong);git 
-      setProgress(0);
-      setIsPlaying(true);
+      const correctedPosition =
+        state.position + (state.is_playing ? drift / 1000 : 0);
+
+      setSong(state.song || playlist[state.index] || playlist[0]);
+      setCurrentIndex(state.index ?? 0);
+      setIsPlaying(state.is_playing ?? true);
+      setProgress(correctedPosition);
+
+      lastSyncRef.current = Date.now();
     });
 
     return () => {
@@ -222,6 +242,8 @@ export const SyncMusicDashboard = () => {
   };
 
   const handleNext = () => {
+    if (user?.id !== room?.host_id) return;
+
     const nextIndex = (currentIndex + 1) % playlist.length;
     const nextSong = playlist[nextIndex];
 
@@ -233,11 +255,15 @@ export const SyncMusicDashboard = () => {
       type: "NEXT",
       index: nextIndex,
       song: nextSong,
+      position: 0,
+      is_playing: true,
       source: user?.id,
     });
   };
 
   const handlePrev = () => {
+    if (user?.id !== room?.host_id) return;
+
     const prevIndex =
       currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
 
@@ -251,6 +277,8 @@ export const SyncMusicDashboard = () => {
       type: "PREV",
       index: prevIndex,
       song: prevSong,
+      position: 0,
+      is_playing: true,
       source: user?.id,
     });
   };
